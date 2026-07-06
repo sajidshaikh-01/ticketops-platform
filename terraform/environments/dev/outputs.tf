@@ -29,3 +29,7 @@ output "eks_node_role_arn" {
 output "rds_endpoint" {
   value = module.rds.db_endpoint
 }
+
+output "redis_endpoint" {
+  value = module.redis.redis_endpoint
+}

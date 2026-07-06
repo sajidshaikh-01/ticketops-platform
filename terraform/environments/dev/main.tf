@@ -52,3 +52,13 @@ module "rds" {
   db_password        = var.db_password
   multi_az           = false
 }
+
+module "redis" {
+  source = "../../modules/redis"
+
+  project_name       = var.project_name
+  environment        = "dev"
+  vpc_id             = module.vpc.vpc_id
+  vpc_cidr           = var.vpc_cidr
+  private_subnet_ids = module.vpc.private_subnet_ids
+}
