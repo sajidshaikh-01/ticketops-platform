@@ -31,3 +31,11 @@ module "ecr" {
   environment      = "dev"
   repository_names = ["events-api", "admin-api", "bookings-worker", "dashboard"]
 }
+
+
+module "iam" {
+  source = "../../modules/iam"
+
+  project_name = var.project_name
+  environment  = "dev"
+}
