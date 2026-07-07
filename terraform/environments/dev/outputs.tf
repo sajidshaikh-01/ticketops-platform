@@ -45,3 +45,7 @@ output "eks_cluster_endpoint" {
 output "eks_oidc_provider_arn" {
   value = module.eks.oidc_provider_arn
 }
+
+output "alb_controller_role_arn" {
+  value = module.eks.alb_controller_role_arn
+}
