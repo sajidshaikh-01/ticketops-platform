@@ -1,0 +1,31 @@
+replicaCount: 1
+
+image:
+  repository: ""
+  tag: "develop"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+env: []
+envFromSecret: ""
+
+ingress:
+  enabled: false
+  path: /
+
+healthCheck:
+  enabled: true
+  path: /health
+  port: 3000

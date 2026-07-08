@@ -1,0 +1,13 @@
+replicaCount: 1
+image:
+  repository: 674182809289.dkr.ecr.us-east-1.amazonaws.com/ticketops-dev-dashboard
+  tag: develop
+service:
+  port: 80
+  targetPort: 80
+env: []
+ingress:
+  enabled: true
+  path: /
+healthCheck:
+  enabled: false

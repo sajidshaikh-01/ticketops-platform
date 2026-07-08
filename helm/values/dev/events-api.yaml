@@ -1,0 +1,20 @@
+replicaCount: 2
+image:
+  repository: 674182809289.dkr.ecr.us-east-1.amazonaws.com/ticketops-dev-events-api
+  tag: develop
+service:
+  port: 80
+  targetPort: 3000
+envFromSecret: ticketops-db-secret
+env:
+  - name: NODE_ENV
+    value: "production"
+  - name: PORT
+    value: "3000"
+ingress:
+  enabled: true
+  path: /api
+healthCheck:
+  enabled: true
+  path: /api/health
+  port: 3000

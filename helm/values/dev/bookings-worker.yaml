@@ -1,0 +1,15 @@
+replicaCount: 1
+image:
+  repository: 674182809289.dkr.ecr.us-east-1.amazonaws.com/ticketops-dev-bookings-worker
+  tag: develop
+service:
+  port: 80
+  targetPort: 3000
+envFromSecret: ticketops-db-secret
+env:
+  - name: NODE_ENV
+    value: "production"
+ingress:
+  enabled: false
+healthCheck:
+  enabled: false
