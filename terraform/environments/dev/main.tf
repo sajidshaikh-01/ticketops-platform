@@ -70,12 +70,12 @@ module "redis" {
 module "eks" {
   source = "../../modules/eks"
 
-  project_name          = var.project_name
-  environment           = "dev"
-  eks_cluster_role_arn  = module.iam.eks_cluster_role_arn
-  eks_node_role_arn     = module.iam.eks_node_role_arn
-  public_subnet_ids     = module.vpc.public_subnet_ids
-  private_subnet_ids    = module.vpc.private_subnet_ids
-  instance_type         = "t3.medium"
-  desired_size          = 2
+  project_name         = var.project_name
+  environment          = "dev"
+  eks_cluster_role_arn = module.iam.eks_cluster_role_arn
+  eks_node_role_arn    = module.iam.eks_node_role_arn
+  public_subnet_ids    = module.vpc.public_subnet_ids
+  private_subnet_ids   = module.vpc.private_subnet_ids
+  instance_type        = "t3.medium"
+  desired_size         = 2
 }

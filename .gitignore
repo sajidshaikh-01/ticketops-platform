@@ -17,3 +17,7 @@ terraform.rc
 # IDE
 .vscode/
 .idea/
+
+# Editor swap files
+*.swp
+*.swo

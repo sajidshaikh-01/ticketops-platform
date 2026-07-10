@@ -1,0 +1,2 @@
+ingress:
+  certificateArn: "arn:aws:acm:us-east-1:674182809289:certificate/2c97028f-1c19-4564-a6ed-3e2cd20cd328"

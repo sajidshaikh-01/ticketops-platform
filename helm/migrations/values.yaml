@@ -1,0 +1,7 @@
+image:
+  repository: 674182809289.dkr.ecr.us-east-1.amazonaws.com/ticketops-dev-admin-api
+  tag: migrate-v1
+
+envFromSecret: ticketops-db-secret
+
+backoffLimit: 2
