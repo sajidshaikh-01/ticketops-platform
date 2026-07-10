@@ -1,0 +1,6 @@
+apiVersion: v2
+name: ticketops-migrations
+description: One-shot Kubernetes Job that runs Prisma migrations against RDS
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
   repository: 674182809289.dkr.ecr.us-east-1.amazonaws.com/ticketops-dev-admin-api
-  tag: develop
+  tag: admin-prefix-fix
 service:
   port: 80
   targetPort: 3000
@@ -11,10 +11,14 @@ env:
     value: "production"
   - name: PORT
     value: "3000"
+  - name: CORS_ORIGIN
+    value: "https://dev.sajid-platform.online"
 ingress:
   enabled: true
-  path: /admin
+  path: /api/admin
+  groupName: ticketops-dev
+  groupOrder: 10
 healthCheck:
   enabled: true
-  path: /api/health
+  path: /api/admin/health
   port: 3000
