@@ -10,6 +10,7 @@ spec:
       chart: kube-prometheus-stack
       targetRevision: "87.15.0"
       helm:
+        skipCrds: true
         valueFiles:
           - $values/monitoring/values/dev/kube-prometheus-stack-values.yaml
     - repoURL: https://github.com/sajidshaikh-01/ticketops-platform.git
