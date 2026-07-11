@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: admin-api-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/sajidshaikh-01/ticketops-platform.git
+    targetRevision: develop
+    path: helm/ticketops-service
+    helm:
+      valueFiles:
+        - values/dev/shared.yaml
+        - values/dev/admin-api.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ticketops-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
