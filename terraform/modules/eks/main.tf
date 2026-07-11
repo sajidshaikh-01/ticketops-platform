@@ -91,3 +91,52 @@ resource "aws_iam_role_policy_attachment" "alb_controller" {
   role       = aws_iam_role.alb_controller.name
   policy_arn = aws_iam_policy.alb_controller.arn
 }
+
+# --- EBS CSI Driver IRSA ---
+# NOTE: role name is hardcoded to match what eksctl already created on the live cluster
+# (installed manually on 2026-07-11 to fix PVC provisioning). Imported into Terraform
+# rather than replaced, to avoid an unnecessary IAM role swap on a working cluster.
+data "aws_iam_policy_document" "ebs_csi_assume_role" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [aws_iam_openid_connect_provider.eks.arn]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "ebs_csi" {
+  name               = "eksctl-ticketops-dev-addon-aws-ebs-csi-driver-Role1-DQYfpaMZ6OqN"
+  assume_role_policy = data.aws_iam_policy_document.ebs_csi_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "ebs_csi" {
+  role       = aws_iam_role.ebs_csi.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+}
+
+resource "aws_eks_addon" "ebs_csi" {
+  cluster_name             = aws_eks_cluster.main.name
+  addon_name               = "aws-ebs-csi-driver"
+  service_account_role_arn = aws_iam_role.ebs_csi.arn
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-ebs-csi-addon"
+    Environment = var.environment
+  }
+}
