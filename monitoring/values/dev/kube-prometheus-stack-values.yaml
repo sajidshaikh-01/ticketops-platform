@@ -1,0 +1,64 @@
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeProxy:
+  enabled: false
+
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    retention: 5d
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        memory: 1Gi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          storageClassName: gp2
+          resources:
+            requests:
+              storage: 10Gi
+
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
+    storage:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          storageClassName: gp2
+          resources:
+            requests:
+              storage: 2Gi
+
+grafana:
+  admin:
+    existingSecret: grafana-admin-secret
+    userKey: admin-user
+    passwordKey: admin-password
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+  persistence:
+    enabled: true
+    storageClassName: gp2
+    size: 2Gi
+  service:
+    type: ClusterIP
