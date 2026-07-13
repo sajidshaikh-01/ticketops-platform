@@ -20,5 +20,5 @@ ingress:
   groupOrder: 10
 healthCheck:
   enabled: true
-  path: /api/health
+  path: /api/admin/health
   port: 3000
