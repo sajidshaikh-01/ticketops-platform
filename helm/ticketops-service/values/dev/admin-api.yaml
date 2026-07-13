@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
   repository: 674182809289.dkr.ecr.us-east-1.amazonaws.com/ticketops-dev-admin-api
-  tag: c95a079
+  tag: bed614a
 service:
   port: 80
   targetPort: 3000
