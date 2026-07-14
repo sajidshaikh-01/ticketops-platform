@@ -22,6 +22,9 @@ spec:
     - repoURL: https://github.com/sajidshaikh-01/ticketops-platform.git
       targetRevision: develop
       path: monitoring/servicemonitors
+    - repoURL: https://github.com/sajidshaikh-01/ticketops-platform.git
+      targetRevision: develop
+      path: monitoring/alerts
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

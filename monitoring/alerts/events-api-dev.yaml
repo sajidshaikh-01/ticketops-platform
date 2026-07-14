@@ -1,0 +1,50 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: events-api-dev
+  namespace: monitoring
+  labels:
+    release: monitoring-dev
+spec:
+  groups:
+    - name: events-api-dev.rules
+      rules:
+        - alert: EventsApiHighErrorRate
+          expr: |
+            (
+              100 * sum(rate(http_requests_total{job="events-api-dev", status_code=~"5.."}[5m]))
+              /
+              sum(rate(http_requests_total{job="events-api-dev"}[5m]))
+            ) > 5
+            and
+            sum(rate(http_requests_total{job="events-api-dev"}[5m])) > 0
+          for: 5m
+          labels:
+            severity: critical
+            service: events-api
+          annotations:
+            summary: "events-api error rate above 5%"
+            description: "events-api 5xx error rate has been above 5% for 5 minutes (current value: {{ $value | printf \"%.2f\" }}%)."
+
+        - alert: EventsApiHighLatency
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(http_request_duration_seconds_bucket{job="events-api-dev"}[5m])) by (le)
+            ) > 1
+          for: 5m
+          labels:
+            severity: warning
+            service: events-api
+          annotations:
+            summary: "events-api P95 latency above 1s"
+            description: "events-api P95 request latency has been above 1 second for 5 minutes (current value: {{ $value | printf \"%.2f\" }}s)."
+
+        - alert: EventsApiTargetDown
+          expr: up{job="events-api-dev"} == 0
+          for: 2m
+          labels:
+            severity: critical
+            service: events-api
+          annotations:
+            summary: "events-api target down"
+            description: "Prometheus has not been able to scrape {{ $labels.pod }} for 2 minutes."
