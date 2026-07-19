@@ -1,7 +1,7 @@
 replicaCount: 2
 image:
   repository: 674182809289.dkr.ecr.us-east-1.amazonaws.com/ticketops-dev-dashboard
-  tag: "6902364"
+  tag: "466f2c7"
 service:
   port: 80
   targetPort: 8080
