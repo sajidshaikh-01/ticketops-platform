@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: bookings-worker-dev
+  namespace: monitoring
+  labels:
+    release: monitoring-dev
+spec:
+  selector:
+    matchLabels:
+      app: bookings-worker-dev
+  namespaceSelector:
+    matchNames:
+      - ticketops-dev
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
