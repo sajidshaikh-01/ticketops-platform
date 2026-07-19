@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
   repository: 674182809289.dkr.ecr.us-east-1.amazonaws.com/ticketops-dev-admin-api
-  tag: "466f2c7"
+  tag: "52b8de4"
 service:
   port: 80
   targetPort: 3000
