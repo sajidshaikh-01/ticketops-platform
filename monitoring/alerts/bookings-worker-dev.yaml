@@ -1,0 +1,57 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: bookings-worker-dev
+  namespace: monitoring
+  labels:
+    release: monitoring-dev
+spec:
+  groups:
+    - name: bookings-worker-dev.rules
+      rules:
+        - alert: BookingsWorkerDown
+          expr: up{job="bookings-worker-dev"} == 0
+          for: 2m
+          labels:
+            severity: critical
+            service: bookings-worker
+          annotations:
+            summary: "bookings-worker target down"
+            description: "Prometheus has not been able to scrape {{ $labels.pod }} for 2 minutes."
+        - alert: BookingsWorkerHighFailureRate
+          expr: |
+            (
+              100 * sum(rate(booking_jobs_processed_total{job="bookings-worker-dev", status="failed"}[5m]))
+              /
+              clamp_min(sum(rate(booking_jobs_processed_total{job="bookings-worker-dev"}[5m])), 1)
+            ) > 5
+            and
+            sum(rate(booking_jobs_processed_total{job="bookings-worker-dev"}[5m])) > 0
+          for: 5m
+          labels:
+            severity: critical
+            service: bookings-worker
+          annotations:
+            summary: "bookings-worker job failure rate above 5%"
+            description: "bookings-worker job processing failure rate has been above 5% for 5 minutes (current value: {{ $value | printf \"%.2f\" }}%)."
+        - alert: BookingsWorkerHighProcessingLatency
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(booking_job_processing_duration_seconds_bucket{job="bookings-worker-dev"}[5m])) by (le)
+            ) > 5
+          for: 5m
+          labels:
+            severity: warning
+            service: bookings-worker
+          annotations:
+            summary: "bookings-worker P95 processing latency above 5s"
+            description: "bookings-worker P95 job processing latency has been above 5 seconds for 5 minutes (current value: {{ $value | printf \"%.2f\" }}s)."
+        - alert: BookingsWorkerPermanentFailures
+          expr: increase(booking_jobs_failed_permanently_total{job="bookings-worker-dev"}[15m]) > 0
+          for: 0m
+          labels:
+            severity: critical
+            service: bookings-worker
+          annotations:
+            summary: "bookings-worker has permanently failed jobs"
+            description: "{{ $value | printf \"%.0f\" }} booking job(s) exhausted max retry attempts and were marked FAILED in the last 15 minutes. Manual review required."
