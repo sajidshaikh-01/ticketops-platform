@@ -1,0 +1,72 @@
+deploymentMode: SingleBinary
+
+loki:
+  auth_enabled: false
+
+  commonConfig:
+    replication_factor: 1
+
+  storage:
+    type: s3
+    bucketNames:
+      chunks: ticketops-dev-loki-logs
+      ruler: ticketops-dev-loki-logs
+      admin: ticketops-dev-loki-logs
+    s3:
+      region: us-east-1
+
+  schemaConfig:
+    configs:
+      - from: "2024-01-01"
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+
+  limits_config:
+    retention_period: 336h
+
+serviceAccount:
+  create: true
+  name: loki
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::674182809289:role/ticketops-dev-loki-role
+
+singleBinary:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+  persistence:
+    enabled: true
+    storageClass: gp2
+    size: 10Gi
+
+read:
+  replicas: 0
+write:
+  replicas: 0
+backend:
+  replicas: 0
+
+gateway:
+  enabled: false
+
+test:
+  enabled: false
+
+# Memcached-based caching layers default to enabled and demand ~11Gi combined
+# memory (9830Mi chunks-cache + 1229Mi results-cache) — far more than this
+# dev cluster's node capacity supports. Disabled for dev; a query-performance
+# optimization, not a correctness requirement. Revisit if query latency
+# becomes a problem once there's real log volume.
+chunksCache:
+  enabled: false
+
+resultsCache:
+  enabled: false
