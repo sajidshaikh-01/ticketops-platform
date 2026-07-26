@@ -44,6 +44,13 @@ module "iam" {
   environment  = "dev"
 }
 
+module "s3" {
+  source = "../../modules/s3"
+
+  project_name = var.project_name
+  environment  = "dev"
+}
+
 module "rds" {
   source = "../../modules/rds"
 
@@ -78,4 +85,5 @@ module "eks" {
   private_subnet_ids   = module.vpc.private_subnet_ids
   instance_type        = "t3.medium"
   desired_size         = 2
+  loki_logs_bucket_arn = module.s3.loki_logs_bucket_arn
 }

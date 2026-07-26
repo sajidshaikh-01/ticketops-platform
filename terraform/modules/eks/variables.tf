@@ -47,3 +47,8 @@ variable "max_size" {
   type    = number
   default = 3
 }
+
+variable "loki_logs_bucket_arn" {
+  description = "ARN of the S3 bucket Loki writes chunks/index to — used to scope the Loki IRSA policy"
+  type        = string
+}

@@ -92,6 +92,65 @@ resource "aws_iam_role_policy_attachment" "alb_controller" {
   policy_arn = aws_iam_policy.alb_controller.arn
 }
 
+# --- Loki IRSA ---
+# Lets Loki pods (monitoring:loki service account) write chunks/index directly
+# to S3 without static AWS credentials, following the same OIDC trust pattern
+# as the ALB controller above.
+data "aws_iam_policy_document" "loki_assume_role" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [aws_iam_openid_connect_provider.eks.arn]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:monitoring:loki"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "loki" {
+  name               = "${var.project_name}-${var.environment}-loki-role"
+  assume_role_policy = data.aws_iam_policy_document.loki_assume_role.json
+}
+
+# Scoped to exactly one bucket, ListBucket at bucket level + object actions
+# at object level — least privilege, no wildcard resource.
+data "aws_iam_policy_document" "loki_s3_access" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:ListBucket"]
+    resources = [var.loki_logs_bucket_arn]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
+    resources = ["${var.loki_logs_bucket_arn}/*"]
+  }
+}
+
+resource "aws_iam_policy" "loki" {
+  name   = "${var.project_name}-${var.environment}-loki-policy"
+  policy = data.aws_iam_policy_document.loki_s3_access.json
+}
+
+resource "aws_iam_role_policy_attachment" "loki" {
+  role       = aws_iam_role.loki.name
+  policy_arn = aws_iam_policy.loki.arn
+}
+
 # --- EBS CSI Driver IRSA ---
 # NOTE: role name is hardcoded to match what eksctl already created on the live cluster
 # (installed manually on 2026-07-11 to fix PVC provisioning). Imported into Terraform
