@@ -84,6 +84,6 @@ module "eks" {
   public_subnet_ids    = module.vpc.public_subnet_ids
   private_subnet_ids   = module.vpc.private_subnet_ids
   instance_type        = "t3.medium"
-  desired_size         = 2
+  desired_size         = 3
   loki_logs_bucket_arn = module.s3.loki_logs_bucket_arn
 }
