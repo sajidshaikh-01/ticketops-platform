@@ -151,6 +151,44 @@ resource "aws_iam_role_policy_attachment" "loki" {
   policy_arn = aws_iam_policy.loki.arn
 }
 
+# --- Dedicated monitoring/logging node group ---
+# Simpler alternative to the prefix-delegation/nodeadm approach: a plain
+# managed node group with a bigger instance type gets a much higher default
+# pod ceiling with zero custom launch template or nodeadm config, per AWS's
+# own eni-max-pods.txt table (t3.medium=17, t3.large=35 — confirmed against
+# https://github.com/awslabs/amazon-eks-ami/blob/main/nodeadm/internal/kubelet/eni-max-pods.txt).
+# Hosts monitoring/logging workloads (Fluent Bit, Loki, Prometheus, Grafana)
+# so the main app node group doesn't need to grow just to fit observability.
+resource "aws_eks_node_group" "monitoring" {
+  cluster_name    = aws_eks_cluster.main.name
+  node_group_name = "${var.project_name}-${var.environment}-monitoring-nodes"
+  node_role_arn   = var.eks_node_role_arn
+  subnet_ids      = var.private_subnet_ids
+
+  instance_types = ["t3.large"]
+  capacity_type  = "ON_DEMAND"
+
+  scaling_config {
+    desired_size = 1
+    min_size     = 1
+    max_size     = 2
+  }
+
+  update_config {
+    max_unavailable = 1
+  }
+
+  labels = {
+    workload = "monitoring"
+  }
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-monitoring-nodes"
+    Environment = var.environment
+    Purpose     = "monitoring-logging-workloads"
+  }
+}
+
 # --- EBS CSI Driver IRSA ---
 # NOTE: role name is hardcoded to match what eksctl already created on the live cluster
 # (installed manually on 2026-07-11 to fix PVC provisioning). Imported into Terraform
