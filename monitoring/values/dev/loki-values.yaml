@@ -36,6 +36,8 @@ serviceAccount:
 
 singleBinary:
   replicas: 1
+  nodeSelector:
+    workload: monitoring
   resources:
     requests:
       cpu: 100m
