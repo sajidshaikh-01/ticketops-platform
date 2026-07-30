@@ -5,8 +5,8 @@ resource "aws_eks_cluster" "main" {
 
   vpc_config {
     subnet_ids              = concat(var.public_subnet_ids, var.private_subnet_ids)
-    endpoint_public_access   = true
-    endpoint_private_access  = true
+    endpoint_public_access  = true
+    endpoint_private_access = true
   }
 
   tags = {
@@ -149,6 +149,63 @@ resource "aws_iam_policy" "loki" {
 resource "aws_iam_role_policy_attachment" "loki" {
   role       = aws_iam_role.loki.name
   policy_arn = aws_iam_policy.loki.arn
+}
+
+# --- Tempo IRSA ---
+# Lets Tempo pods (monitoring:tempo service account) write trace blocks
+# directly to S3 without static AWS credentials — same OIDC trust pattern
+# as Loki above.
+data "aws_iam_policy_document" "tempo_assume_role" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [aws_iam_openid_connect_provider.eks.arn]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:monitoring:tempo"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "tempo" {
+  name               = "${var.project_name}-${var.environment}-tempo-role"
+  assume_role_policy = data.aws_iam_policy_document.tempo_assume_role.json
+}
+
+data "aws_iam_policy_document" "tempo_s3_access" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:ListBucket"]
+    resources = [var.tempo_traces_bucket_arn]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
+    resources = ["${var.tempo_traces_bucket_arn}/*"]
+  }
+}
+
+resource "aws_iam_policy" "tempo" {
+  name   = "${var.project_name}-${var.environment}-tempo-policy"
+  policy = data.aws_iam_policy_document.tempo_s3_access.json
+}
+
+resource "aws_iam_role_policy_attachment" "tempo" {
+  role       = aws_iam_role.tempo.name
+  policy_arn = aws_iam_policy.tempo.arn
 }
 
 # --- Dedicated monitoring/logging node group ---

@@ -77,13 +77,14 @@ module "redis" {
 module "eks" {
   source = "../../modules/eks"
 
-  project_name         = var.project_name
-  environment          = "dev"
-  eks_cluster_role_arn = module.iam.eks_cluster_role_arn
-  eks_node_role_arn    = module.iam.eks_node_role_arn
-  public_subnet_ids    = module.vpc.public_subnet_ids
-  private_subnet_ids   = module.vpc.private_subnet_ids
-  instance_type        = "t3.medium"
-  desired_size         = 3
-  loki_logs_bucket_arn = module.s3.loki_logs_bucket_arn
+  project_name            = var.project_name
+  environment             = "dev"
+  eks_cluster_role_arn    = module.iam.eks_cluster_role_arn
+  eks_node_role_arn       = module.iam.eks_node_role_arn
+  public_subnet_ids       = module.vpc.public_subnet_ids
+  private_subnet_ids      = module.vpc.private_subnet_ids
+  instance_type           = "t3.medium"
+  desired_size            = 3
+  loki_logs_bucket_arn    = module.s3.loki_logs_bucket_arn
+  tempo_traces_bucket_arn = module.s3.tempo_traces_bucket_arn
 }

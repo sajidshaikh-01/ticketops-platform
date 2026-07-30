@@ -52,3 +52,8 @@ variable "loki_logs_bucket_arn" {
   description = "ARN of the S3 bucket Loki writes chunks/index to — used to scope the Loki IRSA policy"
   type        = string
 }
+
+variable "tempo_traces_bucket_arn" {
+  description = "ARN of the S3 bucket Tempo writes trace blocks to — used to scope the Tempo IRSA policy"
+  type        = string
+}
