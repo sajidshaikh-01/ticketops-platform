@@ -12,6 +12,7 @@ tempo:
       backend: s3
       s3:
         bucket: ticketops-dev-tempo-traces
+        endpoint: s3.us-east-1.amazonaws.com
         region: us-east-1
       wal:
         path: /var/tempo/wal
