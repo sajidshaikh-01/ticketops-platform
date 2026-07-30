@@ -1,0 +1,39 @@
+fullnameOverride: otel-collector
+
+mode: deployment
+
+image:
+  repository: otel/opentelemetry-collector-k8s
+
+replicaCount: 1
+
+nodeSelector:
+  workload: monitoring
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+config:
+  exporters:
+    debug: {}
+    otlp:
+      endpoint: tracing-dev-tempo.monitoring.svc.cluster.local:4317
+      tls:
+        insecure: true
+  service:
+    pipelines:
+      traces:
+        receivers:
+          - otlp
+          - jaeger
+          - zipkin
+        processors:
+          - memory_limiter
+          - batch
+        exporters:
+          - otlp
+          - debug
