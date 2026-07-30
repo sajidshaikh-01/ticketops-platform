@@ -1,0 +1,32 @@
+tempo:
+  reportingEnabled: true
+  retention: 24h
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+  storage:
+    trace:
+      backend: s3
+      s3:
+        bucket: ticketops-dev-tempo-traces
+        region: us-east-1
+      wal:
+        path: /var/tempo/wal
+serviceAccount:
+  create: true
+  name: tempo
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::674182809289:role/ticketops-dev-tempo-role
+nodeSelector:
+  workload: monitoring
+persistence:
+  enabled: true
+  storageClassName: gp2
+  size: 10Gi
+serviceMonitor:
+  enabled: true
+  additionalLabels:
+    release: monitoring-dev
