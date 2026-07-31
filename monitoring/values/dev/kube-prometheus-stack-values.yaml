@@ -86,3 +86,20 @@ grafana:
     size: 2Gi
   service:
     type: ClusterIP
+  additionalDataSources:
+    - name: Tempo
+      uid: tempo
+      type: tempo
+      access: proxy
+      url: http://tracing-dev-tempo.monitoring.svc.cluster.local:3200
+      isDefault: false
+      editable: false
+      jsonData:
+        tracesToLogsV2:
+          datasourceUid: dftk6bfm1v7cwe
+          spanStartTimeShift: "-1h"
+          spanEndTimeShift: "1h"
+          filterByTraceID: false
+          filterBySpanID: false
+        serviceMap:
+          datasourceUid: prometheus
