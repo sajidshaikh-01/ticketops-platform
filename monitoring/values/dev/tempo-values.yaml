@@ -1,6 +1,7 @@
 tempo:
   reportingEnabled: true
   retention: 24h
+  memBallastSizeMbs: 0
   resources:
     requests:
       cpu: 100m
