@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
   repository: 674182809289.dkr.ecr.us-east-1.amazonaws.com/ticketops-dev-bookings-worker
-  tag: "6026ad8"
+  tag: "9aa2a04"
 service:
   port: 80
   targetPort: 3000
