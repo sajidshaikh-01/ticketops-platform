@@ -1,14 +1,12 @@
 replicaCount: 2 # initial value only; ignored once autoscaling.enabled is true
-
 autoscaling:
   enabled: true
   minReplicas: 2
   maxReplicas: 5
   targetCPUUtilizationPercentage: 70
-
 image:
   repository: 674182809289.dkr.ecr.us-east-1.amazonaws.com/ticketops-dev-dashboard
-  tag: "4831ca6"
+  tag: "1973713"
 service:
   port: 80
   targetPort: 8080
