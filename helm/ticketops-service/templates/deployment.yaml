@@ -5,7 +5,9 @@ metadata:
   labels:
     app: {{ include "ticketops-service.fullname" . }}
 spec:
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app: {{ include "ticketops-service.fullname" . }}
