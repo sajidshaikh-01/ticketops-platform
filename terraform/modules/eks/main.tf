@@ -294,3 +294,16 @@ resource "aws_eks_addon" "ebs_csi" {
     Environment = var.environment
   }
 }
+
+# metrics-server does not call any AWS APIs, so unlike ebs_csi it needs
+# no IRSA role - it only needs to read pod/node cpu+memory via the
+# kubelet summary API, which is in-cluster.
+resource "aws_eks_addon" "metrics_server" {
+  cluster_name = aws_eks_cluster.main.name
+  addon_name   = "metrics-server"
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-metrics-server-addon"
+    Environment = var.environment
+  }
+}
