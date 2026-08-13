@@ -6,7 +6,7 @@ autoscaling:
   targetCPUUtilizationPercentage: 70
 image:
   repository: 674182809289.dkr.ecr.us-east-1.amazonaws.com/ticketops-dev-dashboard
-  tag: "1973713"
+  tag: "b2290a0"
 service:
   port: 80
   targetPort: 8080
